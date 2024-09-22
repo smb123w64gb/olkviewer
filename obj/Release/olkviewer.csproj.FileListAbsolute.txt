@@ -1,0 +1,13 @@
+C:\Users\user\source\repos\olkviewer\olkviewer\bin\Release\olkviewer.exe.config
+C:\Users\user\source\repos\olkviewer\olkviewer\bin\Release\olkviewer.exe
+C:\Users\user\source\repos\olkviewer\olkviewer\bin\Release\olkviewer.pdb
+C:\Users\user\source\repos\olkviewer\olkviewer\obj\Release\olkviewer.OlkViewer.resources
+C:\Users\user\source\repos\olkviewer\olkviewer\obj\Release\olkviewer.Properties.Resources.resources
+C:\Users\user\source\repos\olkviewer\olkviewer\obj\Release\olkviewer.csproj.GenerateResource.cache
+C:\Users\user\source\repos\olkviewer\olkviewer\obj\Release\olkviewer.csproj.CoreCompileInputs.cache
+C:\Users\user\source\repos\olkviewer\olkviewer\obj\Release\olkviewer.exe
+C:\Users\user\source\repos\olkviewer\olkviewer\obj\Release\olkviewer.pdb
+C:\Users\user\source\repos\olkviewer\olkviewer\obj\Release\olkviewer.csproj.AssemblyReference.cache
+C:\Users\user\source\repos\olkviewer\olkviewer\obj\Release\olkviewer.AboutForm.resources
+C:\Users\user\source\repos\olkviewer\olkviewer\bin\Release\CHANGELOG.md
+C:\Users\user\source\repos\olkviewer\olkviewer\bin\Release\README.md
