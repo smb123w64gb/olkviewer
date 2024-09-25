@@ -1,4 +1,4 @@
 .vs/
-olkviewer/bin
-olkviewer/obj
+bin/
+obj/
 *.obj
