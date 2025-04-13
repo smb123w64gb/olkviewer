@@ -237,6 +237,12 @@ namespace olkviewer
                 int type = (int)(vgtEntry.Unk4 >> 20) & 0xF;
                 int x = (int)(vgtEntry.Unk4 & 0x3FF) + 1;
                 int y = (int)((vgtEntry.Unk4 >> 10) & 0x3FF) + 1;
+                int mipFilter = (int)(vgtEntry.Unk1 >> 5) & 0x3;
+                int maxlod = (int)(vgtEntry.Unk3 >> 8) & 0xFF;
+                int mipcount = 0;
+                if(mipFilter>0){
+                    mipcount = (maxlod + 0xf) / 0x10;
+                }
 
 
                 switch (type)
@@ -289,6 +295,7 @@ namespace olkviewer
 
                 vgtEntry.dX = x;
                 vgtEntry.dY = y;
+                vgtEntry.dMipCount = mipcount;
 
                 vgtEntry.dOffset = vgtEntry.Offset1 + Offset;
                 vgtEntry.dOffset2 = vgtEntry.Offset2 + Offset;

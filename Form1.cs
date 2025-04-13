@@ -448,10 +448,10 @@ namespace olkviewer
             SetText(textureOffTextBox, textureOffsetText);
 
             // TODO: Figure out how to get mipmap count
-            if (vgtEntries[GetIndex(treeView2.SelectedNode)].Unk3 == 0x1000)
+            if (vgtEntries[GetIndex(treeView2.SelectedNode)].dMipCount > 0 )
             {
                 mipmapCheckBox.Checked = true;
-                mipmapNumBox.Value = 1;
+                mipmapNumBox.Value = vgtEntries[GetIndex(treeView2.SelectedNode)].dMipCount;
             }
             else
             {
@@ -475,6 +475,7 @@ namespace olkviewer
             {
                 exportPNGItem.Enabled = true;
             }
+            OLKImagePreview.Image = null;
         }
 
         private void exportToolStripMenuItem1_Click(object sender, EventArgs e)

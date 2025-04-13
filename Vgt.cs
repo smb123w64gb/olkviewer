@@ -127,6 +127,7 @@ namespace olkviewer
 				dType = 0;
 				dOffset = 0;
 				dOffset2 = 0;
+				dMipCount = 0;
 
 			}
 
@@ -197,6 +198,7 @@ namespace olkviewer
 			public int dX { get; set; }
 			public int dY { get; set; }
 			public EType dType { get; set; }
+			public int dMipCount { get; set; }
 
 			public long dOffset { get; set; } // Texture Offset
 			public long dOffset2 { get; set; } // Texture Alpha Map Offset

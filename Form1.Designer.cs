@@ -55,6 +55,8 @@ namespace olkviewer
             this.gfxMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.exportToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.importToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.exportPNGItem = new System.Windows.Forms.ToolStripMenuItem();
             this.xBox = new System.Windows.Forms.NumericUpDown();
             this.yBox = new System.Windows.Forms.NumericUpDown();
             this.mipmapCheckBox = new System.Windows.Forms.CheckBox();
@@ -95,8 +97,7 @@ namespace olkviewer
             this.replaceFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.openFileDialog2 = new System.Windows.Forms.OpenFileDialog();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.exportPNGItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.OLKImagePreview = new System.Windows.Forms.PictureBox();
             this.toolStrip1.SuspendLayout();
             this.fileSelectMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.indexBox)).BeginInit();
@@ -111,6 +112,7 @@ namespace olkviewer
             this.mmgPage.SuspendLayout();
             this.mmgMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.index2Box)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.OLKImagePreview)).BeginInit();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -300,21 +302,34 @@ namespace olkviewer
             this.toolStripSeparator1,
             this.exportPNGItem});
             this.gfxMenuStrip.Name = "gfxMenuStrip";
-            this.gfxMenuStrip.Size = new System.Drawing.Size(181, 98);
+            this.gfxMenuStrip.Size = new System.Drawing.Size(143, 76);
             // 
             // exportToolStripMenuItem1
             // 
             this.exportToolStripMenuItem1.Name = "exportToolStripMenuItem1";
-            this.exportToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.exportToolStripMenuItem1.Size = new System.Drawing.Size(142, 22);
             this.exportToolStripMenuItem1.Text = "Export...";
             this.exportToolStripMenuItem1.Click += new System.EventHandler(this.exportToolStripMenuItem1_Click);
             // 
             // importToolStripMenuItem1
             // 
             this.importToolStripMenuItem1.Name = "importToolStripMenuItem1";
-            this.importToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.importToolStripMenuItem1.Size = new System.Drawing.Size(142, 22);
             this.importToolStripMenuItem1.Text = "Import...";
             this.importToolStripMenuItem1.Click += new System.EventHandler(this.importToolStripMenuItem1_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(139, 6);
+            // 
+            // exportPNGItem
+            // 
+            this.exportPNGItem.Enabled = false;
+            this.exportPNGItem.Name = "exportPNGItem";
+            this.exportPNGItem.Size = new System.Drawing.Size(142, 22);
+            this.exportPNGItem.Text = "Export (PNG)";
+            this.exportPNGItem.Click += new System.EventHandler(this.exportPNGToolStripMenuItem_Click);
             // 
             // xBox
             // 
@@ -526,12 +541,12 @@ namespace olkviewer
             this.motMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.exportToolStripMenuItem});
             this.motMenuStrip.Name = "motMenuStrip";
-            this.motMenuStrip.Size = new System.Drawing.Size(118, 26);
+            this.motMenuStrip.Size = new System.Drawing.Size(117, 26);
             // 
             // exportToolStripMenuItem
             // 
             this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-            this.exportToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            this.exportToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
             this.exportToolStripMenuItem.Text = "Export...";
             this.exportToolStripMenuItem.Click += new System.EventHandler(this.exportToolStripMenuItem_Click);
             // 
@@ -600,19 +615,19 @@ namespace olkviewer
             this.extractToolStripMenuItem,
             this.extractAllToolStripMenuItem});
             this.mmgMenuStrip.Name = "mmgMenuStrip";
-            this.mmgMenuStrip.Size = new System.Drawing.Size(128, 48);
+            this.mmgMenuStrip.Size = new System.Drawing.Size(127, 48);
             // 
             // extractToolStripMenuItem
             // 
             this.extractToolStripMenuItem.Name = "extractToolStripMenuItem";
-            this.extractToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
+            this.extractToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
             this.extractToolStripMenuItem.Text = "Extract";
             this.extractToolStripMenuItem.Click += new System.EventHandler(this.extractToolStripMenuItem_Click);
             // 
             // extractAllToolStripMenuItem
             // 
             this.extractAllToolStripMenuItem.Name = "extractAllToolStripMenuItem";
-            this.extractAllToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
+            this.extractAllToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
             this.extractAllToolStripMenuItem.Text = "Extract All";
             this.extractAllToolStripMenuItem.Click += new System.EventHandler(this.extractAllToolStripMenuItem_Click);
             // 
@@ -646,24 +661,20 @@ namespace olkviewer
             // 
             this.openFileDialog2.FileName = "openFileDialog2";
             // 
-            // toolStripSeparator1
+            // pictureBox1
             // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
-            // 
-            // exportPNGItem
-            // 
-            this.exportPNGItem.Enabled = false;
-            this.exportPNGItem.Name = "exportPNGItem";
-            this.exportPNGItem.Size = new System.Drawing.Size(180, 22);
-            this.exportPNGItem.Text = "Export (PNG)";
-            this.exportPNGItem.Click += new System.EventHandler(this.exportPNGToolStripMenuItem_Click);
+            this.OLKImagePreview.Location = new System.Drawing.Point(13, 487);
+            this.OLKImagePreview.Name = "OLKImagePreview";
+            this.OLKImagePreview.Size = new System.Drawing.Size(512, 445);
+            this.OLKImagePreview.TabIndex = 20;
+            this.OLKImagePreview.TabStop = false;
             // 
             // OlkViewer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(540, 505);
+            this.ClientSize = new System.Drawing.Size(540, 944);
+            this.Controls.Add(this.OLKImagePreview);
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.index2Box);
             this.Controls.Add(this.tabControl1);
@@ -696,6 +707,7 @@ namespace olkviewer
             this.mmgPage.PerformLayout();
             this.mmgMenuStrip.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.index2Box)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.OLKImagePreview)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -769,6 +781,7 @@ namespace olkviewer
         private System.Windows.Forms.NumericUpDown mipmapNumBox;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem exportPNGItem;
+        private System.Windows.Forms.PictureBox OLKImagePreview;
     }
 }
 
