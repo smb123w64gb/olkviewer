@@ -41,6 +41,7 @@ namespace olkviewer
 			public Header()
 			{
 				Magic = 0;
+				Version = 4;
 				Unk0 = 0;
 				TexCount = 0;
 				Unk1 = 0;
@@ -54,9 +55,11 @@ namespace olkviewer
 			public Header(BinaryReader br)
 			{
 				Magic = Helper.readUInt32B(br);
-				Unk0 = Helper.readUInt32L(br);
+				Version = br.ReadByte();
+                Unk0 = Helper.readUInt16B(br);
+				LoadedIngame = br.ReadByte();
 				TexCount = Helper.readUInt32B(br);
-				Unk1 = Helper.readUInt32L(br);
+				Unk1 = Helper.readUInt32B(br);
 				HeaderLen = Helper.readUInt32B(br);
 				HeaderBlockSize = Helper.readUInt32B(br);
 
@@ -65,7 +68,9 @@ namespace olkviewer
 
 			// Auto-implemented readonly property:
 			public uint Magic { get; }
-			public uint Unk0 { get; }
+			public byte Version { get; }
+			public ushort Unk0 { get; }
+			public byte LoadedIngame { get; }
 			public uint TexCount { get; }
 			public uint Unk1 { get; }
 			public uint HeaderLen { get; }
@@ -288,6 +293,39 @@ namespace olkviewer
 
 		}
 
+		public class PaletteEntry{
+
+			public PaletteEntry(){
+				Diffuse = new PaletteSlice();
+				Alpha = new PaletteSlice();
+			}
+			public PaletteEntry(BinaryReader br){
+				Diffuse = new PaletteSlice(br);
+				Alpha = new PaletteSlice(br);
+			}
+			public class PaletteSlice{
+				public PaletteSlice (){
+					Unk0 = 0;
+					PalletOffset = 0;
+					palletCount = 0;
+					textureLookupType = PaletteType.IA8;
+				}
+				public PaletteSlice (BinaryReader br)
+                {
+                    Unk0 = Helper.readUInt32B(br);
+					PalletOffset = Helper.readUInt32B(br);
+					palletCount = Helper.readUInt16B(br);
+					textureLookupType = (PaletteType)Helper.readUInt16B(br);
+				}
+			public uint Unk0 {get;}
+			public uint PalletOffset {get;}
+			public ushort palletCount {get;}
+			public PaletteType textureLookupType{get;}
+			}
+
+			public PaletteSlice Diffuse{get;set;}
+			public PaletteSlice Alpha{get;set;}
+		}
 		public class Data
         {
 			public Data(BinaryReader br)

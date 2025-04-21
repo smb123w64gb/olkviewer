@@ -23,7 +23,7 @@ namespace olkviewer
         List<Mot.Entry> motEntries = new List<Mot.Entry>();
         List<Mmg.ChdpEntry> chdpEntries = new List<Mmg.ChdpEntry>();
 
-        Vgt.Header vgtHeader = new Vgt.Header();
+        Vgt2.Header vgtHeader = new Vgt2.Header();
 
         public OlkViewer()
         {

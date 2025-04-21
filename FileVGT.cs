@@ -283,13 +283,13 @@ namespace olkviewer
             FileDDS.Write(DdsFileName, vgtData, mmData, Width, Height, Mipmap, MipmapCount);
         }
 
-        public static Vgt.Header GetFiles(FileStream fs, BinaryReader br, List<Vgt2.Entry> vgtEntries, TreeView treeView2, long Offset)
+        public static Vgt2.Header GetFiles(FileStream fs, BinaryReader br, List<Vgt2.Entry> vgtEntries, TreeView treeView2, long Offset)
         {
             //byte[] bytes;
 
             fs.Seek(Offset, SeekOrigin.Begin);
 
-            Vgt.Header vgtHeader = new Vgt.Header(br);
+            Vgt2.Header vgtHeader = new Vgt2.Header(br);
 
             vgtHeader.dOffset = fs.Position;
             //vgtHead = vgtHeader;
@@ -297,10 +297,19 @@ namespace olkviewer
             vgtEntries.Clear();
 
             treeView2.BeginUpdate();
-
-            for (int i = 0; i < vgtHeader.Count; i++)
+            uint palletCount = 0;
+            if(vgtHeader.Version == 4) { 
+            for (int i = 0; i < vgtHeader.TexCount; i++)
             {
                 Vgt2.Entry vgtEntry = new Vgt2.Entry(br);
+                string pString = "";
+                if(vgtEntry.TexturePaletteOffset>0){
+                    long returnOffset = fs.Position;
+                    fs.Seek(Offset+vgtEntry.TexturePaletteOffset, SeekOrigin.Begin);
+                    Vgt2.PaletteEntry palEntry = new Vgt2.PaletteEntry(br);
+                    pString = "_" + palEntry.Diffuse.textureLookupType.ToString();
+                    fs.Seek(returnOffset, SeekOrigin.Begin);
+                }
 
                 string tString = "UNK";
                 //ushort x = 0;
@@ -326,9 +335,11 @@ namespace olkviewer
                 string cString = String.Format("[{0}x{1}]", x, y);
 
                 vgtEntries.Add(vgtEntry);
+                
 
                 /* list textures */
-                treeView2.Nodes.Add("T" + i + "-" + type.ToString() + "-" + cString);
+                treeView2.Nodes.Add("T"+ + i + "-" + type.ToString()+ pString + "-" + cString);
+            }
             }
 
             treeView2.EndUpdate();
