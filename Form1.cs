@@ -19,7 +19,7 @@ namespace olkviewer
 
         Olk.Header rootH = new Olk.Header();
         List<File.Entry> fileEntries =  new List<File.Entry>();
-        List<Vgt.Entry> vgtEntries = new List<Vgt.Entry>();
+        List<Vgt2.Entry> vgtEntries = new List<Vgt2.Entry>();
         List<Mot.Entry> motEntries = new List<Mot.Entry>();
         List<Mmg.ChdpEntry> chdpEntries = new List<Mmg.ChdpEntry>();
 
@@ -433,10 +433,18 @@ namespace olkviewer
         private void treeView2_AfterSelect(object sender, TreeViewEventArgs e)
         {
 
-            Vgt.Entry.EType ImgType = vgtEntries[GetIndex(treeView2.SelectedNode)].dType;
+            Vgt2.Entry.EType ImgType = vgtEntries[GetIndex(treeView2.SelectedNode)].Diffuse.texImage0.texture_format;
 
             xBox.Value = vgtEntries[GetIndex(treeView2.SelectedNode)].dX;
             yBox.Value = vgtEntries[GetIndex(treeView2.SelectedNode)].dY;
+
+            Bitmap testimg = new Bitmap(256, 256);
+            using (Graphics gfx = Graphics.FromImage(testimg))
+            using (SolidBrush brush = new SolidBrush(Color.FromArgb(255, 255, 255)))
+            {
+                gfx.FillRectangle(brush, 0, 0, 256, 256);
+            }
+            OLKImagePreview.Image = testimg;
 
             int entrySize = 0x44;
             long hOffset = vgtHeader.dOffset + (entrySize * GetIndex(treeView2.SelectedNode));
@@ -447,7 +455,7 @@ namespace olkviewer
             SetText(textureHeaderOffTextBox, textureHeaderOffsetText);
             SetText(textureOffTextBox, textureOffsetText);
 
-            // TODO: Figure out how to get mipmap count
+            // TODO: Figure out how to get mipmap count SMB: I gotchu fam
             if (vgtEntries[GetIndex(treeView2.SelectedNode)].dMipCount > 0 )
             {
                 mipmapCheckBox.Checked = true;
@@ -459,7 +467,7 @@ namespace olkviewer
                 mipmapNumBox.Value = 0;
             }
 
-            if (vgtEntries[GetIndex(treeView2.SelectedNode)].Offset2 != 0)
+            if (vgtEntries[GetIndex(treeView2.SelectedNode)].Alpha.CLUTOffset != 0)
             {
                 alphaCheckBox.Checked = true;
             }
@@ -468,27 +476,69 @@ namespace olkviewer
                 alphaCheckBox.Checked = false;
             }
 
-            if (ImgType == Vgt.Entry.EType.CMPR)
+            if (ImgType == Vgt2.Entry.EType.CMPR)
             {
                 exportPNGItem.Enabled = false;
             } else
             {
                 exportPNGItem.Enabled = true;
             }
-            OLKImagePreview.Image = null;
+
+            if (ImgType == Vgt2.Entry.EType.CMPR)
+            {
+                Vgt2.Entry vgtEntry = vgtEntries[GetIndex(treeView2.SelectedNode)];
+                Vgt2.Entry.EType eType = vgtEntries[GetIndex(treeView2.SelectedNode)].Diffuse.texImage0.texture_format;
+                Bitmap Diffuse = FileVGT.RenderImage(openFileDialog1.FileName, vgtEntry.dOffset, (int)vgtEntry.Diffuse.texImage0.width, (int)vgtEntry.Diffuse.texImage0.height, mipmapCheckBox.Checked, (int)mipmapNumBox.Value);
+                
+                /*if (vgtEntry.Alpha.CLUTOffset > 0)
+                {
+                    Bitmap Alpha = FileVGT.RenderImage(openFileDialog1.FileName, vgtEntry.dOffset2, (int)vgtEntry.Alpha.texImage0.width, (int)vgtEntry.Alpha.texImage0.height, mipmapCheckBox.Checked, (int)mipmapNumBox.Value);
+
+                    Rectangle Drect = new Rectangle(0, 0, vgtEntry.Diffuse.texImage0.width, vgtEntry.Diffuse.texImage0.height);
+                    System.Drawing.Imaging.BitmapData DbmpData = Diffuse.LockBits(Drect, System.Drawing.Imaging.ImageLockMode.ReadWrite, Diffuse.PixelFormat);
+                    IntPtr Dptr = DbmpData.Scan0;
+                    int Dbytes = Math.Abs(DbmpData.Stride) * vgtEntry.Diffuse.texImage0.height;
+                    byte[] DrgbValues = new byte[Dbytes];
+                    System.Runtime.InteropServices.Marshal.Copy(Dptr, DrgbValues, 0, Dbytes);
+
+
+
+
+
+                    Rectangle Arect = new Rectangle(0, 0, vgtEntry.Alpha.texImage0.width, vgtEntry.Alpha.texImage0.height);
+                    System.Drawing.Imaging.BitmapData AbmpData = Alpha.LockBits(Arect, System.Drawing.Imaging.ImageLockMode.ReadWrite, Alpha.PixelFormat);
+                    IntPtr Aptr = AbmpData.Scan0;
+                    int Abytes = Math.Abs(DbmpData.Stride) * vgtEntry.Alpha.texImage0.height;
+                    byte[] ArgbValues = new byte[Abytes];
+                    System.Runtime.InteropServices.Marshal.Copy(Aptr, ArgbValues, 0, Abytes);
+
+                    for (int counter = 3; counter < DrgbValues.Length; counter += 4)
+                    {
+                        DrgbValues[counter] = ArgbValues[counter - 1];
+                    }
+
+                    System.Runtime.InteropServices.Marshal.Copy(DrgbValues, 0, Dptr, Dbytes);
+                    Diffuse.UnlockBits(DbmpData);
+
+                }*/
+
+                OLKImagePreview.Image = Diffuse;
+                OLKImagePreview.BackColor = Color.Transparent;
+            }
+            //OLKImagePreview.Image = null;
         }
 
         private void exportToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            Vgt.Entry vgtEntry = vgtEntries[GetIndex(treeView2.SelectedNode)];
-            Vgt.Entry.EType eType = vgtEntries[GetIndex(treeView2.SelectedNode)].dType;
-
-            if (vgtEntry.dType == Vgt.Entry.EType.CMPR)
+            Vgt2.Entry vgtEntry = vgtEntries[GetIndex(treeView2.SelectedNode)];
+            Vgt2.Entry.EType eType = vgtEntries[GetIndex(treeView2.SelectedNode)].Diffuse.texImage0.texture_format;
+            
+            if (vgtEntry.Diffuse.texImage0.texture_format == Vgt2.Entry.EType.CMPR)
             {
                 // do stuff
 
                 /* write vgt */
-                string fn = GetIndex(treeView2.SelectedNode) + "-" + vgtEntry.dType + ".dds";
+                string fn = GetIndex(treeView2.SelectedNode) + "-" + vgtEntry.Diffuse.texImage0.texture_format + ".dds";
 
                 vgtExportDialog.FileName = fn;
 
@@ -509,7 +559,7 @@ namespace olkviewer
                 if (alphaCheckBox.Checked)
                 {
                     /* write vgt */
-                    string fna = GetIndex(treeView2.SelectedNode) + "-" + vgtEntry.dType + "_a" + ".dds";
+                    string fna = GetIndex(treeView2.SelectedNode) + "-" + vgtEntry.Diffuse.texImage0.texture_format + "_a" + ".dds";
 
                     vgtExportDialog.FileName = fna;
 
@@ -539,9 +589,9 @@ namespace olkviewer
 
         private void importToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            Vgt.Entry vgtEntry = vgtEntries[GetIndex(treeView2.SelectedNode)];
+            Vgt2.Entry vgtEntry = vgtEntries[GetIndex(treeView2.SelectedNode)];
 
-            if (vgtEntry.dType == Vgt.Entry.EType.CMPR)
+            if (vgtEntry.Diffuse.texImage0.texture_format == Vgt2.Entry.EType.CMPR)
             {
                 // do stuff
                 if (vgtImportDialog.ShowDialog() == DialogResult.OK)
@@ -772,13 +822,13 @@ namespace olkviewer
             byte[] ImageData = new byte[16];
             byte[] Palette = new byte[16];
 
-            Vgt.Entry vgtEntry = vgtEntries[GetIndex(treeView2.SelectedNode)];
-            Vgt.Entry.EType eType = vgtEntries[GetIndex(treeView2.SelectedNode)].dType;
+            Vgt2.Entry vgtEntry = vgtEntries[GetIndex(treeView2.SelectedNode)];
+            Vgt2.Entry.EType eType = vgtEntries[GetIndex(treeView2.SelectedNode)].Diffuse.texImage0.texture_format;
 
             int x = (int)xBox.Value;
             int y = (int)yBox.Value;
 
-            int type = (int)vgtEntry.dType;
+            int type = (int)vgtEntry.Diffuse.texImage0.texture_format;
 
 
             // set C4/C8 to I4/I8 for now
@@ -790,9 +840,9 @@ namespace olkviewer
                 type = 0;
             }
 
-            if (//eType != Vgt.Entry.EType.UNK ||
-                eType == Vgt.Entry.EType.C4 ||
-                eType == Vgt.Entry.EType.C8)
+            if (//eType != Vgt2.Entry.EType.UNK ||
+                eType == Vgt2.Entry.EType.C4 ||
+                eType == Vgt2.Entry.EType.C8)
             {
                 MessageBox.Show("Not supported!");
             } else
@@ -800,7 +850,7 @@ namespace olkviewer
                 // do stuff
 
                 /* write vgt */
-                string fn = GetIndex(treeView2.SelectedNode) + "-" + vgtEntry.dType + ".png";
+                string fn = GetIndex(treeView2.SelectedNode) + "-" + vgtEntry.Diffuse.texImage0.texture_format + ".png";
 
                 vgtExportDialog.FileName = fn;
 

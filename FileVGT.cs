@@ -1,5 +1,7 @@
-﻿using System;
+﻿using S16.Drawing;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -147,6 +149,76 @@ namespace olkviewer
 
             return dataBuf;
         }
+        
+        public static Bitmap RenderImage(String OlkFileName, long Offset, int Width, int Height, bool Mipmap, int MipmapCount)
+        {
+            byte[] vgtData;
+            byte[] mmData;
+            var mmDataBuf = new List<byte>();
+            long mmOffset;
+
+            /* Read Vgt data */
+            using (FileStream fs = new FileStream(OlkFileName, FileMode.Open))
+            {
+                BinaryReader br = new BinaryReader(fs);
+                //long fOffset = (long)vgtEntries[GetIndex(treeView2.SelectedNode)].dOffset;
+                //long fOffset2 = (long)vgtEntries[GetIndex(treeView2.SelectedNode)].dOffset2;
+
+                int x = Width;
+                int y = Height;
+
+                int size = (x * y) >> 1;
+                mmOffset = Offset + size;
+
+                fs.Seek(Offset, SeekOrigin.Begin);
+
+                /* get vgt data */
+                vgtData = br.ReadBytes(size);
+
+                ByteSwap(vgtData, size, x, y);
+                //Vgt_Data_Read(fs, br, fOffset);
+
+                if (Mipmap)
+                {
+
+                    for (int i = 0; i < MipmapCount; i++)
+                    {
+                        x = x >> 1;
+                        y = y >> 1;
+
+
+                        fs.Seek(mmOffset, SeekOrigin.Begin);
+
+                        size = (x * y) >> 1;
+                        mmOffset += (long)size;
+
+                        /* get vgt data */
+                        mmData = br.ReadBytes(size);
+
+                        ByteSwap(mmData, size, x, y);
+
+                        mmDataBuf.AddRange(mmData); // add array to buffer
+                    }
+
+                    mmData = mmDataBuf.ToArray();
+
+                }
+                else
+                {
+                    // nothing
+                    mmData = new byte[16];
+                }
+            }
+
+            /* write DDS */
+
+            //S16.Drawing.DDSImage ddsFile = DDSImage.DDSImage(FileDDS.WriteByte); 
+            DDSImage img = new DDSImage(FileDDS.WriteByte(vgtData, mmData, Width, Height, Mipmap, MipmapCount));
+            return img.BitmapImage;
+
+            //FileDDS.Write(DdsFileName, vgtData, mmData, Width, Height, Mipmap, MipmapCount);
+
+        }
         public static void Export(string OlkFileName, string DdsFileName, long Offset, int Width, int Height, bool Mipmap, int MipmapCount)
         {
             byte[] vgtData;
@@ -211,7 +283,7 @@ namespace olkviewer
             FileDDS.Write(DdsFileName, vgtData, mmData, Width, Height, Mipmap, MipmapCount);
         }
 
-        public static Vgt.Header GetFiles(FileStream fs, BinaryReader br, List<Vgt.Entry> vgtEntries, TreeView treeView2, long Offset)
+        public static Vgt.Header GetFiles(FileStream fs, BinaryReader br, List<Vgt2.Entry> vgtEntries, TreeView treeView2, long Offset)
         {
             //byte[] bytes;
 
@@ -228,84 +300,35 @@ namespace olkviewer
 
             for (int i = 0; i < vgtHeader.Count; i++)
             {
-                Vgt.Entry vgtEntry = new Vgt.Entry(br);
+                Vgt2.Entry vgtEntry = new Vgt2.Entry(br);
 
                 string tString = "UNK";
                 //ushort x = 0;
                 //ushort y = 0;
 
-                int type = (int)(vgtEntry.Unk4 >> 20) & 0xF;
-                int x = (int)(vgtEntry.Unk4 & 0x3FF) + 1;
-                int y = (int)((vgtEntry.Unk4 >> 10) & 0x3FF) + 1;
-                int mipFilter = (int)(vgtEntry.Unk1 >> 5) & 0x3;
-                int maxlod = (int)(vgtEntry.Unk3 >> 8) & 0xFF;
+                Vgt2.Entry.EType type = (vgtEntry.Diffuse.texImage0.texture_format);
+                int x = (int)(vgtEntry.Diffuse.texImage0.width);
+                int y = (int)(vgtEntry.Diffuse.texImage0.height);
+                int mipFilter = (int)(vgtEntry.Diffuse.TexModeInfo.mipmap_filter);
+                int maxlod = (int)(vgtEntry.Diffuse.maxlod);
                 int mipcount = 0;
                 if(mipFilter>0){
                     mipcount = (maxlod + 0xf) / 0x10;
                 }
 
-
-                switch (type)
-                {
-                    case 0:
-                        tString = "I4";
-                        vgtEntry.dType = Vgt.Entry.EType.I4;
-                        break;
-                    case 1:
-                        tString = "I8";
-                        vgtEntry.dType = Vgt.Entry.EType.I8;
-                        break;
-                    case 2:
-                        tString = "IA4";
-                        vgtEntry.dType = Vgt.Entry.EType.IA4;
-                        break;
-                    case 3:
-                        tString = "IA8";
-                        vgtEntry.dType = Vgt.Entry.EType.IA8;
-                        break;
-                    case 4:
-                        tString = "RGB565";
-                        vgtEntry.dType = Vgt.Entry.EType.RGB565;
-                        break;
-                    case 5:
-                        tString = "RGB5A3";
-                        vgtEntry.dType = Vgt.Entry.EType.RGB5A3;
-                        break;
-                    case 6:
-                        tString = "RGBA8";
-                        vgtEntry.dType = Vgt.Entry.EType.RGBA8;
-                        break;
-                    case 8:
-                        tString = "C4";
-                        vgtEntry.dType = Vgt.Entry.EType.C4;
-                        break;
-                    case 9:
-                        tString = "C8";
-                        vgtEntry.dType = Vgt.Entry.EType.C8;
-                        break;
-                    case 14:
-                        tString = "CMPR";
-                        vgtEntry.dType = Vgt.Entry.EType.CMPR;
-                        break;
-                    default:
-                        tString = "UNK";
-                        vgtEntry.dType = Vgt.Entry.EType.UNK;
-                        break;
-                };
-
                 vgtEntry.dX = x;
                 vgtEntry.dY = y;
                 vgtEntry.dMipCount = mipcount;
 
-                vgtEntry.dOffset = vgtEntry.Offset1 + Offset;
-                vgtEntry.dOffset2 = vgtEntry.Offset2 + Offset;
+                vgtEntry.dOffset = vgtEntry.Diffuse.CLUTOffset + Offset;
+                vgtEntry.dOffset2 = vgtEntry.Alpha.CLUTOffset + Offset;
 
                 string cString = String.Format("[{0}x{1}]", x, y);
 
                 vgtEntries.Add(vgtEntry);
 
                 /* list textures */
-                treeView2.Nodes.Add("T" + i + "-" + tString + "-" + cString);
+                treeView2.Nodes.Add("T" + i + "-" + type.ToString() + "-" + cString);
             }
 
             treeView2.EndUpdate();

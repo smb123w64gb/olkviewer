@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace olkviewer
 {
-    class Vgt
+    class Vgt2
     {
 
 		public enum Type : byte
@@ -90,7 +90,7 @@ namespace olkviewer
 				CMPR = 0xE,
 				UNK = 0xF
 			}
-			enum class WrapMode : u32
+            public enum WrapMode : uint
 			{
 			Clamp = 0,
 			Repeat = 1,
@@ -98,23 +98,23 @@ namespace olkviewer
 			// Hardware testing indicates that WrapMode set to 3 behaves the same as clamp, though this is an
 			// invalid value
 			};
-			enum class FilterMode : u32
-			{
+            public enum FilterMode : uint
+            {
 			Near = 0,
 			Linear = 1,
 			};
-			enum class MipMode : u32
-			{
+            public enum MipMode : uint
+            {
 			None = 0,
 			Point = 1,
 			Linear = 2,
 			};
-			enum class LODType : u32
-			{
+            public enum LODType : uint
+            {
 			Edge = 0,
 			Diagonal = 1,
 			};
-			enum class MaxAniso
+            public enum MaxAniso
 			{
 			One = 0,
 			Two = 1,
@@ -123,85 +123,130 @@ namespace olkviewer
 			public class TexMode0
 			{
 				public uint bytes;
+				
 				public WrapMode wrap_s 
 				{ 
 					get => (WrapMode)((bytes >> 0) & 0b11);
-					set => bytes = (uint)((((WrapMode)value & 0b11) << 0) | (parentValue & ~((nuint)0b11 << 0))); 
+					set => bytes = (uint)((((uint)value & 0b11) << 0) | (bytes & ~((uint)0b11 << 0))); 
 				}
 				public WrapMode wrap_t 
 				{ 
 					get => (WrapMode)((bytes >> 2) & 0b11);
-					set => bytes = (uint)((((WrapMode)value & 0b11) << 2) | (parentValue & ~((nuint)0b11 << 2))); 
+					set => bytes = (uint)((((uint)value & 0b11) << 2) | (bytes & ~((uint)0b11 << 2))); 
 				}
 				public FilterMode mag_filter 
 				{ 
 					get => (FilterMode)((bytes >> 4) & 0b1);
-					set => bytes = (uint)((((FilterMode)value & 0b1) << 4) | (parentValue & ~((nuint)0b1 << 4))); 
+					set => bytes = (uint)((((uint)value & 0b1) << 4) | (bytes & ~((uint)0b1 << 4))); 
 				}
 				public MipMode mipmap_filter 
 				{ 
 					get => (MipMode)((bytes >> 5) & 0b11);
-					set => bytes = (uint)((((MipMode)value & 0b11) << 5) | (parentValue & ~((nuint)0b11 << 5))); 
+					set => bytes = (uint)((((uint)value & 0b11) << 5) | (bytes & ~((uint)0b11 << 5))); 
 				}
 				public FilterMode min_filter 
 				{ 
 					get => (FilterMode)((bytes >> 7) & 0b1);
-					set => bytes = (uint)((((FilterMode)value & 0b1) << 7) | (parentValue & ~((nuint)0b1 << 7))); 
+					set => bytes = (uint)((((uint)value & 0b1) << 7) | (bytes & ~((uint)0b1 << 7))); 
 				}
-				public LODType min_filter 
+				public LODType max_filter 
 				{ 
 					get => (LODType)((bytes >> 8) & 0b1);
-					set => bytes = (uint)((((LODType)value & 0b1) << 8) | (parentValue & ~((nuint)0b1 << 8))); 
+					set => bytes = (uint)((((uint)value & 0b1) << 8) | (bytes & ~((uint)0b1 << 8))); 
 				}
 				public int lod_bias 
 				{ 
 					get => (int)((bytes >> 9) & 0b11111111);
-					set => bytes = (uint)((((LODType)value & 0b11111111) << 9) | (parentValue & ~((nuint)0b11111111 << 9))); 
+					set => bytes = (uint)((((uint)value & 0b11111111) << 9) | (bytes & ~((uint)0b11111111 << 9))); 
 				}
 				public MaxAniso max_aniso 
 				{ 
 					get => (MaxAniso)((bytes >> 19) & 0b11);
-					set => bytes = (uint)((((MaxAniso)value & 0b11) << 19) | (parentValue & ~((nuint)0b11 << 19))); 
+					set => bytes = (uint)((((uint)value & 0b11) << 19) | (bytes & ~((uint)0b11 << 19))); 
 				}
-				public bool lod_clamp 
+				public LODType lod_clamp 
 				{ 
-					get => (bool)((bytes >> 21) & 0b1);
-					set => bytes = (uint)((((LODType)value & 0b1) << 21) | (parentValue & ~((nuint)0b1 << 21))); 
+					get => (LODType)((bytes >> 21) & 0b1);
+					set => bytes = (uint)((((uint)value & 0b1) << 21) | (bytes & ~((uint)0b1 << 21))); 
 				}
 
 
 			}
+			public class TexImage0
+            {
+                public uint bytes;
+                public ushort width
+                {
+                    get => (ushort)(1+((bytes >> 0) & 0b1111111111));
+                    set => bytes = (uint)(((((uint)value & 0b1111111111) << 0) | (bytes & ~((uint)0b1111111111 << 0)))-1);
+                }
+                public ushort height
+                {
+                    get => (ushort)(1+((bytes >> 10) & 0b1111111111));
+                    set => bytes = (uint)(((((uint)value & 0b1111111111) << 10) | (bytes & ~((uint)0b1111111111 << 10)))-1);
+                }
+                public EType texture_format
+                {
+                    get => (EType)((bytes >> 20) & 0b1111);
+                    set => bytes = (uint)((((uint)value & 0b1111) << 20) | (bytes & ~((uint)0b1111 << 20)));
+                }
 
-			// Constructor that takes no arguments:
-			public Entry()
+            }
+            public class TextureSlice
 			{
-				Unk0 = 0;
+				public TextureSlice() {
+					TexModeInfo = new TexMode0();
+					unk0 = 0;
+					maxlod = 0;
+					minlod = 0;
+					texImage0 = new TexImage0();
+					CLUTOffset = 0;
+					unk1 = 0;
+					unk2 = 0;
+					ImageType = EType.CMPR;
+					unk3 = 0;
+					imageSizeGC = 2;
+					unk4 = 0;
+                }
+                public TextureSlice(BinaryReader br)
+                {
+                    TexModeInfo = new TexMode0();
+                    TexModeInfo.bytes = Helper.readUInt32B(br);
+                    unk0 = Helper.readUInt16B(br);
+					maxlod = br.ReadByte();
+                    minlod = br.ReadByte();
+                    texImage0 = new TexImage0();
+                    texImage0.bytes = Helper.readUInt32B(br);
+					CLUTOffset = Helper.readUInt32B(br);
+					unk1 = Helper.readUInt16B(br);
+					unk2 = Helper.readUInt16B(br);
+					ImageType = (EType)Helper.readUInt32B(br);
+					unk3 = Helper.readUInt32B(br);
+					imageSizeGC = Helper.readUInt16B(br);
+					unk4 = Helper.readUInt16B(br);
+                }
+                public TexMode0 TexModeInfo { get; }
+                public ushort unk0 { get; }
+                public byte maxlod { get; }
+                public byte minlod { get; }
+                public TexImage0 texImage0 { get; }
+                public uint CLUTOffset { get; }
+                public ushort unk1 { get; }
+                public ushort unk2 { get; }
+                public EType ImageType { get; }
+                public uint unk3 { get; }
+                public ushort imageSizeGC { get; }
+                public ushort unk4 { get; }
 
-				Unk1 = 0;
-				Unk2 = 0; // 0x1000 = has mipmap?
-				Unk3 = 0;
-				Unk4 = 0;
-				Unk5 = 0;
-				Offset1 = 0;
-				Unk6 = 0;
-				Unk7 = 0;
-				Type = 0;
-				Unk9 = 0;
-				UnkA = 0;
-				UnkB = 0;
+            }
+            
+            // Constructor that takes no arguments:
+            public Entry()
+			{
+                TexturePaletteOffset = 0;
 
-				Unk11 = 0;
-				Unk12 = 0; // 0x1000 = has mipmap?
-				Unk13 = 0;
-				Unk14 = 0;
-				Unk15 = 0;
-				Offset2 = 0;
-				Unk16 = 0;
-				Unk17 = 0;
-				Unk18 = 0;
-				Unk19 = 0;
-				Unk1A = 0;
-				Unk1B = 0;
+				Diffuse = new TextureSlice();
+				Alpha = new TextureSlice();
 
 				dX = 0;
 				dY = 0;
@@ -215,65 +260,22 @@ namespace olkviewer
 			// Constructor that takes one argument:
 			public Entry(BinaryReader br)
 			{
-				/* 0x0000 */ Unk0 = Helper.readUInt32B(br); // TexTLUT?
+                /* 0x0000 */
+                TexturePaletteOffset = Helper.readUInt32B(br); // TexTLUT?
+                Diffuse = new TextureSlice();
+                Diffuse = new TextureSlice(br);
 
-				/* First Image */
-				/* 0x0004 */ Unk1 = Helper.readUInt32B(br);
-				/* 0x0008 */ Unk2 = Helper.readUInt16B(br);
-				/* 0x000A */ Unk3 = Helper.readUInt16B(br);
-				/* 0x000C */ Unk4 = Helper.readUInt32B(br); // TexImage0 in dolphin source
-				/* 0x000E */ //Unk5 = Helper.readUInt16B(br);
-				/* 0x0010 */ Offset1 = Helper.readUInt32B(br);
-				/* 0x0014 */ Unk6 = Helper.readUInt16B(br); // palette format?
-				/* 0x0016 */ Unk7 = Helper.readUInt16B(br);
-				/* 0x0018 */ Type = Helper.readUInt32B(br);
-				/* 0x001C */ Unk9 = Helper.readUInt32B(br);
-				/* 0x0020 */ UnkA = Helper.readUInt16B(br); // width/height related?
-				/* 0x0022 */ UnkB = Helper.readUInt16B(br); // width/height related?
+                Alpha = new TextureSlice();
+                Alpha = new TextureSlice(br);
 
-				/* Second Image */
-				/* 0x0024 */ Unk11 = Helper.readUInt32B(br);
-				/* 0x0028 */ Unk12 = Helper.readUInt16B(br);
-				/* 0x002A */ Unk13 = Helper.readUInt16B(br);
-				/* 0x002C */ Unk14 = Helper.readUInt16B(br);
-				/* 0x002E */ Unk15 = Helper.readUInt16B(br);
-				/* 0x0030 */ Offset2 = Helper.readUInt32B(br);
-				/* 0x0034 */ Unk16 = Helper.readUInt16B(br);
-				/* 0x0036 */ Unk17 = Helper.readUInt16B(br);
-				/* 0x0038 */ Unk18 = Helper.readUInt32B(br);
-				/* 0x003C */ Unk19 = Helper.readUInt32B(br);
-				/* 0x0040 */ Unk1A = Helper.readUInt16B(br);
-				/* 0x0042 */ Unk1B = Helper.readUInt16B(br);
+                //size = 0x44
+            }
 
-				//size = 0x44
-			}
+            // Auto-implemented readonly property:
 
-			// Auto-implemented readonly property:
-			public uint Unk0 { get; }
-			public uint Unk1 { get; }
-			public ushort Unk2 { get; }
-			public ushort Unk3 { get; }
-			public uint Unk4 { get; }
-			public ushort Unk5 { get; }
-			public uint Offset1 { get; } // Texture Offset
-			public ushort Unk6 { get; }
-			public ushort Unk7 { get; }
-			public uint Type { get; }
-			public uint Unk9 { get; }
-			public ushort UnkA { get; }
-			public ushort UnkB { get; }
-			public uint Unk11 { get; }
-			public ushort Unk12 { get; }
-			public ushort Unk13 { get; }
-			public ushort Unk14 { get; }
-			public ushort Unk15 { get; }
-			public uint Offset2 { get; } // Texture Alpha Map Offset
-			public ushort Unk16 { get; }
-			public ushort Unk17 { get; }
-			public uint Unk18 { get; }
-			public uint Unk19 { get; }
-			public ushort Unk1A { get; }
-			public ushort Unk1B { get; }
+            public TextureSlice Diffuse { get; set; }
+            public TextureSlice Alpha { get; set; }
+            public uint TexturePaletteOffset { get; }
 
 			/* clean up some time */
 			public int dX { get; set; }

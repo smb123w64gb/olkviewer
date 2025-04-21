@@ -68,6 +68,66 @@ namespace olkviewer
 
             return header;
         }
+        public static byte[] CreateHeader(MemoryStream fs, BinaryWriter bw, int Width, int Height, bool Mipmap, int MipmapCount)
+        {
+            byte[] header = new byte[0x74];
+
+            uint Magic = 0x20534444; // "DDS 
+
+            uint Magic2 = 0x31545844; // "DXT1" 0x44585431
+
+            uint Size = 0x7C;
+            uint dwFlags = 0x00081007;
+
+            uint x = (uint)Width; //(uint)vgtEntries[GetIndex(treeView2.SelectedNode)].dX;
+            uint y = (uint)Height; //(uint)vgtEntries[GetIndex(treeView2.SelectedNode)].dY;
+
+
+            uint Mipmaps = 1;
+
+            if (Mipmap)
+            {
+                Mipmaps += (uint)MipmapCount;
+                dwFlags |= 0x20000;
+            }
+
+            bw.Write(Magic);
+            bw.Write(Size);
+            bw.Write(dwFlags);
+            bw.Write(header);
+
+            /* write height/size */
+            fs.Seek(0xC, SeekOrigin.Begin);
+
+            bw.Write(y);
+            bw.Write(x);
+            bw.Write((x * y) / 2);
+
+            /* write mipmap */
+            fs.Seek(0x1C, SeekOrigin.Begin);
+            bw.Write(Mipmaps);
+
+            /* show thumbnail in explorer*/
+            uint dword1 = 0x20;
+            uint dword2 = 4;
+            fs.Seek(0x4C, SeekOrigin.Begin);
+            bw.Write(dword1);
+            bw.Write(dword2);
+
+            /* write type */
+            fs.Seek(0x54, SeekOrigin.Begin);
+            bw.Write(Magic2);
+
+            /* write dwcaps */
+            if (Mipmap)
+            {
+                uint dwcaps = 0x00401008;
+                fs.Seek(0x6C, SeekOrigin.Begin);
+                bw.Write(dwcaps);
+            }
+
+            return header;
+        }
         public static byte[] ByteSwap(byte[] ddsData, int Size, int Width, int Height)
         {
             byte[] newData = ddsData;
@@ -228,6 +288,28 @@ namespace olkviewer
             return newData;
         }
 
+        public static byte[] WriteByte(byte[] TextureData, byte[] MipmapData, int Width, int Height, bool Mipmap, int MipmapCount)
+        {
+            using (MemoryStream fs = new MemoryStream())
+            {
+                BinaryWriter bw = new BinaryWriter(fs);
+
+                byte[] header = FileDDS.CreateHeader(fs, bw, Width, Height, Mipmap, MipmapCount);
+
+                /* seek to end of header */
+                fs.Seek(0x80, SeekOrigin.Begin);
+
+                /* write vgt data */
+                bw.Write(TextureData);
+
+                /* write mipmap data */
+                if (Mipmap)
+                {
+                    bw.Write(MipmapData);
+                }
+                return fs.ToArray();
+            }
+        }
         public static void Write(string DestPath, byte[] TextureData, byte[] MipmapData, int Width, int Height, bool Mipmap, int MipmapCount)
         {
             using (FileStream fs = new FileStream(DestPath, FileMode.Create))

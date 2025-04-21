@@ -122,7 +122,7 @@ namespace olkviewer
             this.helpButton});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(540, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(1069, 25);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -185,9 +185,9 @@ namespace olkviewer
             // 
             this.treeView1.ContextMenuStrip = this.fileSelectMenuStrip;
             this.treeView1.Enabled = false;
-            this.treeView1.Location = new System.Drawing.Point(13, 38);
+            this.treeView1.Location = new System.Drawing.Point(12, 44);
             this.treeView1.Name = "treeView1";
-            this.treeView1.Size = new System.Drawing.Size(211, 442);
+            this.treeView1.Size = new System.Drawing.Size(211, 480);
             this.treeView1.TabIndex = 1;
             this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
             // 
@@ -277,6 +277,7 @@ namespace olkviewer
             // label3
             // 
             this.label3.AutoSize = true;
+            this.label3.BackColor = System.Drawing.Color.Transparent;
             this.label3.Location = new System.Drawing.Point(261, 79);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(33, 13);
@@ -290,7 +291,7 @@ namespace olkviewer
             this.treeView2.Enabled = false;
             this.treeView2.Location = new System.Drawing.Point(12, 121);
             this.treeView2.Name = "treeView2";
-            this.treeView2.Size = new System.Drawing.Size(246, 169);
+            this.treeView2.Size = new System.Drawing.Size(246, 200);
             this.treeView2.TabIndex = 9;
             this.treeView2.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView2_AfterSelect);
             // 
@@ -422,7 +423,7 @@ namespace olkviewer
             this.tabControl1.Location = new System.Drawing.Point(248, 174);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(281, 319);
+            this.tabControl1.Size = new System.Drawing.Size(281, 350);
             this.tabControl1.TabIndex = 17;
             // 
             // vgtPage
@@ -443,7 +444,7 @@ namespace olkviewer
             this.vgtPage.Location = new System.Drawing.Point(4, 22);
             this.vgtPage.Name = "vgtPage";
             this.vgtPage.Padding = new System.Windows.Forms.Padding(3);
-            this.vgtPage.Size = new System.Drawing.Size(273, 293);
+            this.vgtPage.Size = new System.Drawing.Size(273, 324);
             this.vgtPage.TabIndex = 0;
             this.vgtPage.Text = "VGT";
             // 
@@ -661,11 +662,13 @@ namespace olkviewer
             // 
             this.openFileDialog2.FileName = "openFileDialog2";
             // 
-            // pictureBox1
+            // OLKImagePreview
             // 
-            this.OLKImagePreview.Location = new System.Drawing.Point(13, 487);
+            this.OLKImagePreview.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.OLKImagePreview.Location = new System.Drawing.Point(544, 12);
             this.OLKImagePreview.Name = "OLKImagePreview";
-            this.OLKImagePreview.Size = new System.Drawing.Size(512, 445);
+            this.OLKImagePreview.Size = new System.Drawing.Size(512, 512);
+            this.OLKImagePreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.OLKImagePreview.TabIndex = 20;
             this.OLKImagePreview.TabStop = false;
             // 
@@ -673,7 +676,7 @@ namespace olkviewer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(540, 944);
+            this.ClientSize = new System.Drawing.Size(1069, 535);
             this.Controls.Add(this.OLKImagePreview);
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.index2Box);
