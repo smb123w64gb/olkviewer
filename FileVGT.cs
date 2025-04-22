@@ -149,7 +149,88 @@ namespace olkviewer
 
             return dataBuf;
         }
-        
+        public static Bitmap RenderImage(String OlkFileName, Vgt2.Entry Entry) 
+        {
+            if(Entry.Diffuse.ImageType == Vgt2.Entry.EType.C8)
+            {
+                if (Entry.pEntry.Diffuse.textureLookupType == Vgt2.PaletteType.IA8)
+                {
+                    byte[] palData = new byte[512];
+                    Color[] colors = new Color[256];
+                    byte[] vgtData;
+                    using (FileStream fs = new FileStream(OlkFileName, FileMode.Open))
+                    {
+                        BinaryReader br = new BinaryReader(fs);
+                        fs.Seek(Entry.pEntry.dDiffuseOffset, SeekOrigin.Begin);
+                        //palData = br.ReadBytes(512);
+                        var stride = 0;
+                        for(int i = 0; i < colors.Length; i++) {
+                            byte r, g, b, a;
+                            UInt16 SrcPixel = br.ReadUInt16();
+
+                            if ((SrcPixel & 0x8000) == 0x8000)
+                            {
+                                a = 0xff;
+
+                                r = (byte)((SrcPixel & 0x7c00) >> 10);
+                                r = (byte)((r << (8 - 5)) | (r >> (10 - 8)));
+
+                                g = (byte)((SrcPixel & 0x3e0) >> 5);
+                                g = (byte)((g << (8 - 5)) | (g >> (10 - 8)));
+
+                                b = (byte)(SrcPixel & 0x1f);
+                                b = (byte)((b << (8 - 5)) | (b >> (10 - 8)));
+                            }
+                            else
+                            {
+                                a = (byte)((SrcPixel & 0x7000) >> 12);
+                                a = (byte)((a << (8 - 3)) | (a << (8 - 6)) | (a >> (9 - 8)));
+
+                                r = (byte)((SrcPixel & 0xf00) >> 8);
+                                r = (byte)((r << (8 - 4)) | r);
+
+                                g = (byte)((SrcPixel & 0xf0) >> 4);
+                                g = (byte)((g << (8 - 4)) | g);
+
+                                b = (byte)(SrcPixel & 0xf);
+                                b = (byte)((b << (8 - 4)) | b);
+                            }
+                            colors[i] = Color.FromArgb(a, r, g, b);
+                            stride += 2;
+                        }
+                        
+
+                        int x = Entry.Diffuse.texImage0.width;
+                        int y = Entry.Diffuse.texImage0.height;
+
+                        int size = (x * y);
+                        fs.Seek(Entry.dOffset, SeekOrigin.Begin);
+                        vgtData = br.ReadBytes(size);
+                        byte[] fixedData = new byte[size];
+                        Texture.Fix8x4(ref fixedData, vgtData, 0, x, y);
+                        Bitmap bitmap = new Bitmap(x,y,System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                        int idx = 0;
+                        for (int w = 0; w < x; w++)
+                        {
+                            for (int h = 0; h < y; h++)
+                            {
+                                bitmap.SetPixel(w,h,colors[fixedData[idx]]);
+                                idx += 1;
+                            }
+
+                        }
+                        return bitmap;
+
+
+                    }
+                }
+            }
+            return null;
+
+        }
+
+
+
         public static Bitmap RenderImage(String OlkFileName, long Offset, int Width, int Height, bool Mipmap, int MipmapCount)
         {
             byte[] vgtData;
@@ -297,7 +378,6 @@ namespace olkviewer
             vgtEntries.Clear();
 
             treeView2.BeginUpdate();
-            uint palletCount = 0;
             if(vgtHeader.Version == 4) { 
             for (int i = 0; i < vgtHeader.TexCount; i++)
             {
@@ -308,12 +388,11 @@ namespace olkviewer
                     fs.Seek(Offset+vgtEntry.TexturePaletteOffset, SeekOrigin.Begin);
                     Vgt2.PaletteEntry palEntry = new Vgt2.PaletteEntry(br);
                     pString = "_" + palEntry.Diffuse.textureLookupType.ToString();
+                    palEntry.dDiffuseOffset = palEntry.Diffuse.PalletOffset + Offset;
+                    palEntry.dAlphaOffset = palEntry.Alpha.PalletOffset + Offset;
+                    vgtEntry.pEntry = palEntry;
                     fs.Seek(returnOffset, SeekOrigin.Begin);
                 }
-
-                string tString = "UNK";
-                //ushort x = 0;
-                //ushort y = 0;
 
                 Vgt2.Entry.EType type = (vgtEntry.Diffuse.texImage0.texture_format);
                 int x = (int)(vgtEntry.Diffuse.texImage0.width);

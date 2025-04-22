@@ -524,6 +524,12 @@ namespace olkviewer
 
                 OLKImagePreview.Image = Diffuse;
                 OLKImagePreview.BackColor = Color.Transparent;
+            }else if(ImgType == Vgt2.Entry.EType.C8)
+            {
+                Vgt2.Entry vgtEntry = vgtEntries[GetIndex(treeView2.SelectedNode)];
+                Bitmap Diffuse = FileVGT.RenderImage(openFileDialog1.FileName, vgtEntry);
+                OLKImagePreview.Image = Diffuse;
+                OLKImagePreview.BackColor = Color.Transparent;
             }
             //OLKImagePreview.Image = null;
         }

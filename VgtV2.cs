@@ -47,8 +47,8 @@ namespace olkviewer
 				Unk1 = 0;
 				HeaderLen = 0;
 				HeaderBlockSize = 0;
-
-				dOffset = 0;
+				
+                dOffset = 0;
 			}
 
 			// Constructor that takes one argument:
@@ -75,6 +75,7 @@ namespace olkviewer
 			public uint Unk1 { get; }
 			public uint HeaderLen { get; }
 			public uint HeaderBlockSize { get; }
+			
 			public long dOffset { get; set; } // Texture header offset in file
 		}
 
@@ -259,8 +260,9 @@ namespace olkviewer
 				dOffset = 0;
 				dOffset2 = 0;
 				dMipCount = 0;
+                pEntry = new PaletteEntry();
 
-			}
+            }
 
 			// Constructor that takes one argument:
 			public Entry(BinaryReader br)
@@ -290,8 +292,9 @@ namespace olkviewer
 
 			public long dOffset { get; set; } // Texture Offset
 			public long dOffset2 { get; set; } // Texture Alpha Map Offset
+            public PaletteEntry pEntry { get; set; }
 
-		}
+        }
 
 		public class PaletteEntry{
 
@@ -325,6 +328,8 @@ namespace olkviewer
 
 			public PaletteSlice Diffuse{get;set;}
 			public PaletteSlice Alpha{get;set;}
+			public long dDiffuseOffset;
+			public long dAlphaOffset;
 		}
 		public class Data
         {

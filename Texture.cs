@@ -182,7 +182,7 @@ namespace olkviewer
                                 Dest[di + 1] = Src[S + 0];
                             }
         }
-        static void Fix8x4(ref byte[] Dest, byte[] Src, int S, int Width, int Height)
+        public static void Fix8x4(ref byte[] Dest, byte[] Src, int S, int Width, int Height)
         {
             for (int y = 0; y < Height; y += 4)
                 for (int x = 0; x < Width; x += 8)
@@ -207,7 +207,7 @@ namespace olkviewer
                                 Dest[2 * (Width * (y + dy) + x + dx) + 1] = Alpha;
                             }
         }
-        static void Fix8x8Expand(ref byte[] Dest, byte[] Src, int S, int Width, int Height)
+        public static void Fix8x8Expand(ref byte[] Dest, byte[] Src, int S, int Width, int Height)
         {
             int y, x, dy, dx;
 
