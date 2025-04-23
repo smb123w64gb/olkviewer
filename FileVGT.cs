@@ -165,10 +165,23 @@ namespace olkviewer
                         //palData = br.ReadBytes(512);
                         var stride = 0;
                         for(int i = 0; i < colors.Length; i++) {
-                            byte r, g, b, a;
-                            UInt16 SrcPixel = br.ReadUInt16();
+                            byte R, G, B;
 
-                            if ((SrcPixel & 0x8000) == 0x8000)
+                            /*r = (byte)(palData[0 + stride]);
+                            g = (byte)(palData[0 + stride]);
+                            b = (byte)(palData[1 + stride]);
+                            a = (byte)(palData[1 + stride]);*/
+                            UInt16 SrcPixel = (UInt16)Helper.readInt16B(br);
+
+                            R = (byte)((SrcPixel & 0xf100) >> 11);
+                            G = (byte)((SrcPixel & 0x7e0) >> 5);
+                            B = (byte)((SrcPixel & 0x1f));
+
+                            R = (byte)((R << (8 - 5)) | (R >> (10 - 8)));
+                            G = (byte)((G << (8 - 6)) | (G >> (12 - 8)));
+                            B = (byte)((B << (8 - 5)) | (B >> (10 - 8)));
+
+                            /*if ((SrcPixel & 0x8000) == 0x8000)
                             {
                                 a = 0xff;
 
@@ -194,8 +207,8 @@ namespace olkviewer
 
                                 b = (byte)(SrcPixel & 0xf);
                                 b = (byte)((b << (8 - 4)) | b);
-                            }
-                            colors[i] = Color.FromArgb(a, r, g, b);
+                            }*/
+                            colors[i] = Color.FromArgb(255 ,R, G, B);
                             stride += 2;
                         }
                         
@@ -210,9 +223,9 @@ namespace olkviewer
                         Texture.Fix8x4(ref fixedData, vgtData, 0, x, y);
                         Bitmap bitmap = new Bitmap(x,y,System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                         int idx = 0;
-                        for (int w = 0; w < x; w++)
+                        for (int h = 0; h < y; h++)
                         {
-                            for (int h = 0; h < y; h++)
+                            for (int w = 0; w < x; w++)
                             {
                                 bitmap.SetPixel(w,h,colors[fixedData[idx]]);
                                 idx += 1;
