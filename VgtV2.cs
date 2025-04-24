@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Threading.Tasks;
+using static olkviewer.Vgt2.Entry;
+using static olkviewer.Vgt2.PaletteEntry;
 
 namespace olkviewer
 {
@@ -306,24 +308,45 @@ namespace olkviewer
 				Diffuse = new PaletteSlice(br);
 				Alpha = new PaletteSlice(br);
 			}
-			public class PaletteSlice{
+            public class TexTLUT
+            {
+                public ushort bytes;
+                public ushort tmem_offset
+                {
+                    get => (ushort)( ((bytes >> 0) & 0b1111111111));
+                    set => bytes = (ushort)(((((uint)value & 0b1111111111) << 0) | (bytes & ~((uint)0b1111111111 << 0))));
+                }
+                public PaletteType tlut_format
+                {
+                    get => (PaletteType)( ((bytes >> 10) & 0b11));
+                    set => bytes = (ushort)(((((uint)value & 0b11) << 10) | (bytes & ~((uint)0b11 << 10))));
+                }
+
+            }
+            public class PaletteSlice{
 				public PaletteSlice (){
 					Unk0 = 0;
 					PalletOffset = 0;
 					palletCount = 0;
-					textureLookupType = PaletteType.IA8;
+					textureLookupType = new TexTLUT();
+
+                    textureLookupType.tlut_format = PaletteType.IA8;
+					textureLookupType.tmem_offset = 0;
 				}
 				public PaletteSlice (BinaryReader br)
                 {
-                    Unk0 = Helper.readUInt32B(br);
-					PalletOffset = Helper.readUInt32B(br);
+                    Unk0 = Helper.readUInt16B(br);
+                    textureLookupType = new TexTLUT();
+                    textureLookupType.bytes = Helper.readUInt16B(br);
+                    PalletOffset = Helper.readUInt32B(br);
 					palletCount = Helper.readUInt16B(br);
-					textureLookupType = (PaletteType)Helper.readUInt16B(br);
+                    Unk1 = Helper.readUInt16B(br);
 				}
-			public uint Unk0 {get;}
-			public uint PalletOffset {get;}
+			public ushort Unk0 {get;}
+			public TexTLUT textureLookupType { get; set; }
+            public uint PalletOffset {get;}
 			public ushort palletCount {get;}
-			public PaletteType textureLookupType{get;}
+			public ushort Unk1 {get;}
 			}
 
 			public PaletteSlice Diffuse{get;set;}

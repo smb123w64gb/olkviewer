@@ -223,7 +223,7 @@ namespace olkviewer
                                 Dest[Width * (y + dy) + x + dx + 1] = (byte)((t << 4) | t);
                             }
         }
-        static void Fix8x8NoExpand(ref byte[] Dest, byte[] Src, int S, int Width, int Height)
+        public static void Fix8x8NoExpand(ref byte[] Dest, byte[] Src, int S, int Width, int Height)
         {
             for (int y = 0; y < Height; y += 8)
                 for (int x = 0; x < Width; x += 8)

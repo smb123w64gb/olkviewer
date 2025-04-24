@@ -151,9 +151,9 @@ namespace olkviewer
         }
         public static Bitmap RenderImage(String OlkFileName, Vgt2.Entry Entry) 
         {
-            if(Entry.Diffuse.ImageType == Vgt2.Entry.EType.C8)
+            if(Entry.Diffuse.ImageType == Vgt2.Entry.EType.C8 || Entry.Diffuse.ImageType == Vgt2.Entry.EType.C4)
             {
-                if (Entry.pEntry.Diffuse.textureLookupType == Vgt2.PaletteType.IA8)
+                if (Entry.pEntry.Diffuse.textureLookupType.tlut_format == Vgt2.PaletteType.RGB565)
                 {
                     byte[] palData = new byte[512];
                     Color[] colors = new Color[256];
@@ -181,7 +181,66 @@ namespace olkviewer
                             G = (byte)((G << (8 - 6)) | (G >> (12 - 8)));
                             B = (byte)((B << (8 - 5)) | (B >> (10 - 8)));
 
-                            /*if ((SrcPixel & 0x8000) == 0x8000)
+                            colors[i] = Color.FromArgb(255 ,R, G, B);
+                            stride += 2;
+                        }
+
+                        
+
+                        int x = Entry.Diffuse.texImage0.width;
+                        int y = Entry.Diffuse.texImage0.height;
+
+                        int size = (x * y);
+                        fs.Seek(Entry.dOffset, SeekOrigin.Begin);
+                        
+                        byte[] fixedData = new byte[size];
+                        if (Entry.Diffuse.ImageType == Vgt2.Entry.EType.C4)
+                        {
+                            vgtData = br.ReadBytes(size / 2);
+                            Texture.Fix8x8NoExpand(ref fixedData, vgtData, 0, x, y);
+                        }
+                        else
+                        {
+                            vgtData = br.ReadBytes(size);
+                            Texture.Fix8x4(ref fixedData, vgtData, 0, x, y);
+                        }
+                        Bitmap bitmap = new Bitmap(x,y,System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                        int idx = 0;
+                        for (int h = 0; h < y; h++)
+                        {
+                            for (int w = 0; w < x; w++)
+                            {
+                                bitmap.SetPixel(w,h,colors[fixedData[idx]]);
+                                idx += 1;
+                            }
+
+                        }
+                        return bitmap;
+
+
+                    }
+                }
+                else if(Entry.pEntry.Diffuse.textureLookupType.tlut_format == Vgt2.PaletteType.RGBA5A3)
+                {
+                    byte[] palData = new byte[512];
+                    Color[] colors = new Color[256];
+                    byte[] vgtData;
+                    using (FileStream fs = new FileStream(OlkFileName, FileMode.Open))
+                    {
+                        BinaryReader br = new BinaryReader(fs);
+                        fs.Seek(Entry.pEntry.dDiffuseOffset, SeekOrigin.Begin);
+                        //palData = br.ReadBytes(512);
+                        var stride = 0;
+                        for (int i = 0; i < colors.Length; i++)
+                        {
+                            byte r, g, b, a;
+
+                            /*r = (byte)(palData[0 + stride]);
+                            g = (byte)(palData[0 + stride]);
+                            b = (byte)(palData[1 + stride]);
+                            a = (byte)(palData[1 + stride]);*/
+                            UInt16 SrcPixel = (UInt16)Helper.readInt16B(br);
+                            if ((SrcPixel & 0x8000) == 0x8000)
                             {
                                 a = 0xff;
 
@@ -207,27 +266,101 @@ namespace olkviewer
 
                                 b = (byte)(SrcPixel & 0xf);
                                 b = (byte)((b << (8 - 4)) | b);
-                            }*/
-                            colors[i] = Color.FromArgb(255 ,R, G, B);
+                            }
+                            colors[i] = Color.FromArgb(a, r, g, b);
                             stride += 2;
                         }
+
+
+
+                        int x = Entry.Diffuse.texImage0.width;
+                        int y = Entry.Diffuse.texImage0.height;
+
+                        int size = (x * y);
+                        byte[] fixedData = new byte[size];
+                        fs.Seek(Entry.dOffset, SeekOrigin.Begin);
+                        if (Entry.Diffuse.ImageType == Vgt2.Entry.EType.C4)
+                        {
+                            vgtData = br.ReadBytes(size/2);
+                            Texture.Fix8x8NoExpand(ref fixedData, vgtData, 0, x, y);
+                        }
+                        else
+                        {
+                            vgtData = br.ReadBytes(size);
+                            Texture.Fix8x4(ref fixedData, vgtData, 0, x, y);
+                        }
+
                         
+                        Bitmap bitmap = new Bitmap(x, y, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                        int idx = 0;
+                        for (int h = 0; h < y; h++)
+                        {
+                            for (int w = 0; w < x; w++)
+                            {
+                                bitmap.SetPixel(w, h, colors[fixedData[idx]]);
+                                idx += 1;
+                            }
+
+                        }
+                        return bitmap;
+                    }
+                }else if (Entry.pEntry.Diffuse.textureLookupType.tlut_format == Vgt2.PaletteType.IA8)
+                {
+                    byte[] palData = new byte[512];
+                    byte[] palData_alt = new byte[512];
+                    Color[] colors = new Color[256];
+                    byte[] vgtData;
+                    using (FileStream fs = new FileStream(OlkFileName, FileMode.Open))
+                    {
+                        BinaryReader br = new BinaryReader(fs);
+                        if (Entry.pEntry.Alpha.palletCount > 0)
+                        {
+                            
+                            fs.Seek(Entry.pEntry.dAlphaOffset, SeekOrigin.Begin);
+                            palData_alt = br.ReadBytes(512);
+
+                        }
+                        fs.Seek(Entry.pEntry.dDiffuseOffset, SeekOrigin.Begin);
+                        palData = br.ReadBytes(512);
+                        var stride = 0;
+                        for (int i = 0; i < colors.Length; i++)
+                        {
+                            if(Entry.pEntry.Alpha.palletCount > 0)
+                            {
+                                colors[i] = Color.FromArgb(palData_alt[stride], palData[stride+1], palData[stride], palData_alt[stride+1]);
+                            }
+                            else { 
+                            colors[i] = Color.FromArgb(palData[stride+1], palData[stride], palData[stride], palData[stride]);
+                            }
+                            stride += 2;
+                        }
+
+
 
                         int x = Entry.Diffuse.texImage0.width;
                         int y = Entry.Diffuse.texImage0.height;
 
                         int size = (x * y);
                         fs.Seek(Entry.dOffset, SeekOrigin.Begin);
-                        vgtData = br.ReadBytes(size);
+                       
                         byte[] fixedData = new byte[size];
-                        Texture.Fix8x4(ref fixedData, vgtData, 0, x, y);
-                        Bitmap bitmap = new Bitmap(x,y,System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                        if (Entry.Diffuse.ImageType == Vgt2.Entry.EType.C4)
+                        {
+                            vgtData = br.ReadBytes(size / 2);
+                            Texture.Fix8x8NoExpand(ref fixedData, vgtData, 0, x, y);
+                        }
+                        else
+                        {
+                            vgtData = br.ReadBytes(size);
+                            Texture.Fix8x4(ref fixedData, vgtData, 0, x, y);
+                        }
+                        Bitmap bitmap = new Bitmap(x, y, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                         int idx = 0;
                         for (int h = 0; h < y; h++)
                         {
                             for (int w = 0; w < x; w++)
                             {
-                                bitmap.SetPixel(w,h,colors[fixedData[idx]]);
+                                bitmap.SetPixel(w, h, colors[fixedData[idx]]);
                                 idx += 1;
                             }
 
@@ -239,8 +372,10 @@ namespace olkviewer
                 }
             }
             return null;
-
         }
+            
+
+        
 
 
 
@@ -400,8 +535,14 @@ namespace olkviewer
                     long returnOffset = fs.Position;
                     fs.Seek(Offset+vgtEntry.TexturePaletteOffset, SeekOrigin.Begin);
                     Vgt2.PaletteEntry palEntry = new Vgt2.PaletteEntry(br);
-                    pString = "_" + palEntry.Diffuse.textureLookupType.ToString();
-                    palEntry.dDiffuseOffset = palEntry.Diffuse.PalletOffset + Offset;
+                    if(palEntry.Diffuse.palletCount > 0 && palEntry.Alpha.palletCount > 0)
+                        {
+                            pString = "_" + "RGBA8";
+                        }
+                        else { 
+                    pString = "_" + palEntry.Diffuse.textureLookupType.tlut_format.ToString();
+                        }
+                        palEntry.dDiffuseOffset = palEntry.Diffuse.PalletOffset + Offset;
                     palEntry.dAlphaOffset = palEntry.Alpha.PalletOffset + Offset;
                     vgtEntry.pEntry = palEntry;
                     fs.Seek(returnOffset, SeekOrigin.Begin);

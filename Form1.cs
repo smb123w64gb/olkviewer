@@ -524,7 +524,7 @@ namespace olkviewer
 
                 OLKImagePreview.Image = Diffuse;
                 OLKImagePreview.BackColor = Color.Transparent;
-            }else if(ImgType == Vgt2.Entry.EType.C8)
+            }else if(ImgType == Vgt2.Entry.EType.C8 || ImgType == Vgt2.Entry.EType.C4)
             {
                 Vgt2.Entry vgtEntry = vgtEntries[GetIndex(treeView2.SelectedNode)];
                 Bitmap Diffuse = FileVGT.RenderImage(openFileDialog1.FileName, vgtEntry);
@@ -538,7 +538,7 @@ namespace olkviewer
         {
             Vgt2.Entry vgtEntry = vgtEntries[GetIndex(treeView2.SelectedNode)];
             Vgt2.Entry.EType eType = vgtEntries[GetIndex(treeView2.SelectedNode)].Diffuse.texImage0.texture_format;
-            
+            vgtExportDialog.Filter = "DDS files|*.dds|All files|*.*";
             if (vgtEntry.Diffuse.texImage0.texture_format == Vgt2.Entry.EType.CMPR)
             {
                 // do stuff
@@ -836,7 +836,7 @@ namespace olkviewer
 
             int type = (int)vgtEntry.Diffuse.texImage0.texture_format;
 
-
+            vgtExportDialog.Filter = "PNG files|*.png|All files|*.*";
             // set C4/C8 to I4/I8 for now
             if (type == 9)
             {
@@ -850,7 +850,21 @@ namespace olkviewer
                 eType == Vgt2.Entry.EType.C4 ||
                 eType == Vgt2.Entry.EType.C8)
             {
-                MessageBox.Show("Not supported!");
+                string fn = GetIndex(treeView2.SelectedNode) + "-" + vgtEntry.Diffuse.texImage0.texture_format + ".png";
+                vgtExportDialog.FileName = fn;
+
+                if (vgtExportDialog.ShowDialog() == DialogResult.OK)
+                {
+                    try { 
+                    OLKImagePreview.Image.Save(vgtExportDialog.FileName);
+                    }
+                    catch (SecurityException ex)
+                    {
+                        MessageBox.Show($"Security error.\n\nError message: {ex.Message}\n\n" +
+                        $"Details:\n\n{ex.StackTrace}");
+                    }
+                }
+                
             } else
             {
                 // do stuff
