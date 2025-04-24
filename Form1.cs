@@ -644,7 +644,7 @@ namespace olkviewer
                         Bitmap bitmap = new Bitmap(vgtImportDialog.FileName);
                         Bitmap Result = bitmap.Clone(new Rectangle(0, 0, bitmap.Width, bitmap.Height), PixelFormat.Format8bppIndexed);
 
-                        FileVGT.Import(vgtImportDialog.FileName, openFileDialog1.FileName, vgtEntry.dOffset, mipmapCheckBox.Checked, (int)mipmapNumBox.Value);
+                        FileVGT.Import(openFileDialog1.FileName, vgtEntry, Result);
                     }
                     catch (SecurityException ex)
                     {

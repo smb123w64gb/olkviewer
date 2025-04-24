@@ -191,6 +191,15 @@ namespace olkviewer
                             if (x + dx < Width && y + dy < Height)
                                 Dest[Width * (y + dy) + x + dx] = Src[S];
         }
+        public static void Enc8x4(ref byte[] Dest, byte[] Src, int S, int Width, int Height)
+        {
+            for (int y = 0; y < Height; y += 4)
+                for (int x = 0; x < Width; x += 8)
+                    for (int dy = 0; dy < 4; ++dy)
+                        for (int dx = 0; dx < 8; ++dx, ++S)
+                            if (x + dx < Width && y + dy < Height)
+                                Dest[S] = Src[Width * (y + dy) + x + dx];
+        }
         static void Fix8x4Expand(ref byte[] Dest, byte[] Src, int S, int Width, int Height)
         {
             for (int y = 0; y < Height; y += 4)

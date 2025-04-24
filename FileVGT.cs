@@ -585,27 +585,42 @@ namespace olkviewer
         }
         public static void Import(string OlkFileName, Vgt2.Entry entry, Bitmap InTexture)
         {
-            byte[] ddsData;
-            byte[] vgtData;
-            byte[] mmData;
+            int x = entry.Diffuse.texImage0.width;
+            int y = entry.Diffuse.texImage0.height;
+
+            int size = (x * y);
+
+            byte[] vgtData = new byte[size];
+
             byte[] pal1 = new byte[512];
             byte[] pal2 = new byte[512];
-            var mmDataBuf = new List<byte>();
-            long mmOffset;
 
 
             /* Read data */
             if (entry.pEntry.Diffuse.palletCount > 0 && entry.pEntry.Alpha.palletCount > 0)
             {
                 long stride = 0;
-                foreach(Color x in InTexture.Palette.Entries)
+                foreach(Color vcolor in InTexture.Palette.Entries)
                 {
-                    pal1[stride + 1] = x.R;
-                    pal1[stride + 0] = x.G;
-                    pal2[stride + 1] = x.B;
-                    pal2[stride + 0] = x.A;
+                    pal1[stride + 1] = vcolor.R;
+                    pal1[stride + 0] = vcolor.G;
+                    pal2[stride + 1] = vcolor.B;
+                    pal2[stride + 0] = vcolor.A;
+                    stride += 2;
                 }
             }
+            int idx = 0;
+            Rectangle rect = new Rectangle(0, 0, InTexture.Width, InTexture.Height);
+            System.Drawing.Imaging.BitmapData bmpData =
+            InTexture.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite,
+            InTexture.PixelFormat);
+
+
+            // Get the address of the first line.
+            IntPtr ptr = bmpData.Scan0;
+            System.Runtime.InteropServices.Marshal.Copy(ptr, vgtData, 0, size);
+            byte[] sizzled = new byte[size];
+            Texture.Enc8x4(ref sizzled, vgtData, 0, x, y);
 
 
             //Write data
@@ -613,8 +628,12 @@ namespace olkviewer
             {
                 BinaryWriter bw = new BinaryWriter(fs);
 
-                //fs.Seek(Offset, SeekOrigin.Begin);
-                //bw.Write(vgtData);
+                fs.Seek(entry.dOffset, SeekOrigin.Begin);
+                bw.Write(sizzled);
+                fs.Seek(entry.pEntry.dDiffuseOffset, SeekOrigin.Begin);
+                bw.Write(pal1);
+                fs.Seek(entry.pEntry.dAlphaOffset,SeekOrigin.Begin);
+                bw.Write(pal2);
 
                 //if (Mipmap)
                 //{
