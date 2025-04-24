@@ -1,5 +1,15 @@
 ﻿# Changelog
+## [0.4.1]
+### Added
+- C8 & C4 texture support, Including the covidted ARGB8888 (AKA 2 IA8 pallets stiched together)
+- Allow export of said formats to png via the now working Preview window image.
 
+## [0.4.0]
+### Added
+- Preview window for textures
+
+### Changed
+- Inital Implenation of cleaner VGT reading
 ## [0.3.1]
 ### Added
 - Export textures as PNG (unfinished/broken). Exporting RGB textures works but uses the wrong color format.

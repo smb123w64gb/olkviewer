@@ -9,6 +9,7 @@ using System.Text;
 using System.Security;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Drawing.Imaging;
 
 namespace olkviewer
 {
@@ -599,6 +600,7 @@ namespace olkviewer
 
             if (vgtEntry.Diffuse.texImage0.texture_format == Vgt2.Entry.EType.CMPR)
             {
+                vgtImportDialog.Filter = "DDS files|*.dds|All files|*.*";
                 // do stuff
                 if (vgtImportDialog.ShowDialog() == DialogResult.OK)
                 {
@@ -631,7 +633,27 @@ namespace olkviewer
                 }
 
                 MessageBox.Show("Texture imported!");
-            } else
+            } else if (vgtEntry.Diffuse.texImage0.texture_format == Vgt2.Entry.EType.C8)
+            {
+                vgtImportDialog.Filter = "PNG files|*.png|All files|*.*";
+
+                if (vgtImportDialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        Bitmap bitmap = new Bitmap(vgtImportDialog.FileName);
+                        Bitmap Result = bitmap.Clone(new Rectangle(0, 0, bitmap.Width, bitmap.Height), PixelFormat.Format8bppIndexed);
+
+                        FileVGT.Import(vgtImportDialog.FileName, openFileDialog1.FileName, vgtEntry.dOffset, mipmapCheckBox.Checked, (int)mipmapNumBox.Value);
+                    }
+                    catch (SecurityException ex)
+                    {
+                        MessageBox.Show($"Security error.\n\nError message: {ex.Message}\n\n" +
+                        $"Details:\n\n{ex.StackTrace}");
+                    }
+                }
+            }
+            else
             {
                 string msg = "Not supported!";
                 MessageBox.Show(msg);

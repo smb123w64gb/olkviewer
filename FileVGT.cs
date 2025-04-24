@@ -583,7 +583,45 @@ namespace olkviewer
             return vgtHeader;
 
         }
+        public static void Import(string OlkFileName, Vgt2.Entry entry, Bitmap InTexture)
+        {
+            byte[] ddsData;
+            byte[] vgtData;
+            byte[] mmData;
+            byte[] pal1 = new byte[512];
+            byte[] pal2 = new byte[512];
+            var mmDataBuf = new List<byte>();
+            long mmOffset;
 
+
+            /* Read data */
+            if (entry.pEntry.Diffuse.palletCount > 0 && entry.pEntry.Alpha.palletCount > 0)
+            {
+                long stride = 0;
+                foreach(Color x in InTexture.Palette.Entries)
+                {
+                    pal1[stride + 1] = x.R;
+                    pal1[stride + 0] = x.G;
+                    pal2[stride + 1] = x.B;
+                    pal2[stride + 0] = x.A;
+                }
+            }
+
+
+            //Write data
+            using (FileStream fs = new FileStream(OlkFileName, FileMode.Open))
+            {
+                BinaryWriter bw = new BinaryWriter(fs);
+
+                //fs.Seek(Offset, SeekOrigin.Begin);
+                //bw.Write(vgtData);
+
+                //if (Mipmap)
+                //{
+                //    bw.Write(mmData);
+                //}
+            }
+        }
         public static void Import(string VgtFileName, string OlkFileName, long Offset, bool Mipmap, int MipmapCount)
         {
             byte[] ddsData;
