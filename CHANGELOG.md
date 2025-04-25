@@ -1,4 +1,8 @@
 ﻿# Changelog
+## [0.5]
+### Added
+- C8 & C4 import texture support, via PNG(Be warned, C8 allows only 256 colors and C4 16. Good time to try out LibreSprite or Aesprite 😉)
+
 ## [0.4.1]
 ### Added
 - C8 & C4 texture support, Including the covidted ARGB8888 (AKA 2 IA8 pallets stiched together)

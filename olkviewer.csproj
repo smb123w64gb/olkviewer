@@ -113,5 +113,14 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Dependency\nQuant\nQuant.Core\nQuant.Core.csproj">
+      <Project>{a59307ea-fcb0-4110-bc42-0417871c24c4}</Project>
+      <Name>nQuant.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

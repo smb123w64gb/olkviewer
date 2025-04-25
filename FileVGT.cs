@@ -590,11 +590,17 @@ namespace olkviewer
 
             int size = (x * y);
 
-            byte[] vgtData = new byte[size];
+            
 
             byte[] pal1 = new byte[512];
             byte[] pal2 = new byte[512];
-
+            if(entry.Diffuse.texImage0.texture_format == Vgt2.Entry.EType.C4)
+            {
+                pal1 = new byte[32];
+                pal2 = new byte[32];
+                size = size / 2;
+            }
+            byte[] vgtData = new byte[size];
 
             /* Read data */
             if (entry.pEntry.Diffuse.palletCount > 0 && entry.pEntry.Alpha.palletCount > 0)
@@ -609,7 +615,6 @@ namespace olkviewer
                     stride += 2;
                 }
             }
-            int idx = 0;
             Rectangle rect = new Rectangle(0, 0, InTexture.Width, InTexture.Height);
             System.Drawing.Imaging.BitmapData bmpData =
             InTexture.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite,
@@ -620,7 +625,13 @@ namespace olkviewer
             IntPtr ptr = bmpData.Scan0;
             System.Runtime.InteropServices.Marshal.Copy(ptr, vgtData, 0, size);
             byte[] sizzled = new byte[size];
+            if(entry.Diffuse.texImage0.texture_format == Vgt2.Entry.EType.C4)
+            {
+                Texture.Enc8x8NoExpand(ref sizzled, vgtData, 0, x, y);
+            }
+            else { 
             Texture.Enc8x4(ref sizzled, vgtData, 0, x, y);
+            }
 
 
             //Write data

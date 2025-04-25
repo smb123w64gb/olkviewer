@@ -10,6 +10,8 @@ using System.Security;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing.Imaging;
+using System.Reflection.Emit;
+using nQuant;
 
 namespace olkviewer
 {
@@ -593,7 +595,6 @@ namespace olkviewer
             }
 
         }
-
         private void importToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             Vgt2.Entry vgtEntry = vgtEntries[GetIndex(treeView2.SelectedNode)];
@@ -641,10 +642,48 @@ namespace olkviewer
                 {
                     try
                     {
-                        Bitmap bitmap = new Bitmap(vgtImportDialog.FileName);
-                        Bitmap Result = bitmap.Clone(new Rectangle(0, 0, bitmap.Width, bitmap.Height), PixelFormat.Format8bppIndexed);
 
-                        FileVGT.Import(openFileDialog1.FileName, vgtEntry, Result);
+                        var quantizer = new WuQuantizer();
+                        using (var bitmap = new Bitmap(vgtImportDialog.FileName))
+                        {
+                            using (var quantized = quantizer.QuantizeImage(bitmap,10,70,256))
+                            {
+                                FileVGT.Import(openFileDialog1.FileName, vgtEntry, (Bitmap)quantized);
+                            }
+                        }
+
+
+
+                        
+                    }
+                    catch (SecurityException ex)
+                    {
+                        MessageBox.Show($"Security error.\n\nError message: {ex.Message}\n\n" +
+                        $"Details:\n\n{ex.StackTrace}");
+                    }
+                }
+            }
+            else if (vgtEntry.Diffuse.texImage0.texture_format == Vgt2.Entry.EType.C4)
+            {
+                vgtImportDialog.Filter = "PNG files|*.png|All files|*.*";
+
+                if (vgtImportDialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+
+                        var quantizer = new WuQuantizer();
+                        using (var bitmap = new Bitmap(vgtImportDialog.FileName))
+                        {
+                            using (var quantized = quantizer.QuantizeImage(bitmap, 10, 70, 16))
+                            {
+                                FileVGT.Import(openFileDialog1.FileName, vgtEntry, (Bitmap)quantized);
+                            }
+                        }
+
+
+
+
                     }
                     catch (SecurityException ex)
                     {

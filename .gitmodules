@@ -1,0 +1,3 @@
+[submodule "Dependency/nQuant"]
+	path = Dependency/nQuant
+	url = https://github.com/Crazycatz00/nQuant.git
