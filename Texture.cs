@@ -275,7 +275,7 @@ namespace olkviewer
                             }
         }
 
-        static void FixRGBA8(ref byte[] Dest, byte[] Src, int S, int Width, int Height)
+        public static void FixRGBA8(ref byte[] Dest, byte[] Src, int S, int Width, int Height)
         {
             for (int y = 0; y < Height; y += 4)
                 for (int x = 0; x < Width; x += 4)
