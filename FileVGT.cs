@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -371,7 +372,40 @@ namespace olkviewer
                     }
                 }
             }
-            return null;
+            else if(Entry.Diffuse.ImageType == Vgt2.Entry.EType.RGBA8)
+            {
+                byte[] vgtData;
+                using (FileStream fs = new FileStream(OlkFileName, FileMode.Open))
+                {
+                    BinaryReader br = new BinaryReader(fs);
+
+                    int x = Entry.Diffuse.texImage0.width;
+                    int y = Entry.Diffuse.texImage0.height;
+
+                    int size = (x * y)*4;
+                    byte[] fixedData = new byte[size];
+                    fs.Seek(Entry.dOffset, SeekOrigin.Begin);
+
+                    vgtData = br.ReadBytes(size);
+                    Texture.FixRGBA8(ref fixedData, vgtData, 0, x, y);
+
+
+
+                    Bitmap bitmap = new Bitmap(x, y, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                    int idx = 0;
+                    for (int h = 0; h < y; h++)
+                    {
+                        for (int w = 0; w < x; w++)
+                        {
+                            bitmap.SetPixel(w, h, System.Drawing.Color.FromArgb(fixedData[idx+3], fixedData[idx + 0], fixedData[idx + 1], fixedData[idx + 2]));
+                            idx += 4;
+                        }
+
+                    }
+                    return bitmap;
+                }
+            }
+                return null;
         }
             
 

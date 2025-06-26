@@ -10,6 +10,8 @@ using System.Security;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing.Imaging;
+using System.Windows.Media.Imaging;
+using System.Windows;
 using System.Reflection.Emit;
 using nQuant;
 
@@ -289,6 +291,8 @@ namespace olkviewer
                     {
                         BinaryReader br = new BinaryReader(fs);
                         vgtHeader = FileVGT.GetFiles(fs, br, vgtEntries, treeView2, fOffset);
+                        
+                        
                     }
                 }
                 else if (fileEntries[idx].Type == File.Type.Vmg)
@@ -360,6 +364,9 @@ namespace olkviewer
 
             SetText(offsetTextBox, offsetText);
             SetText(sizeTextBox, sizeText);
+            if (treeView2.Enabled) { 
+            treeView2.Select();
+            }
         }
 
         private void extractMenuItem_Click(object sender, EventArgs e)
@@ -527,7 +534,7 @@ namespace olkviewer
 
                 OLKImagePreview.Image = Diffuse;
                 OLKImagePreview.BackColor = Color.Transparent;
-            }else if(ImgType == Vgt2.Entry.EType.C8 || ImgType == Vgt2.Entry.EType.C4)
+            }else if(ImgType == Vgt2.Entry.EType.C8 || ImgType == Vgt2.Entry.EType.C4 || ImgType == Vgt2.Entry.EType.RGBA8)
             {
                 Vgt2.Entry vgtEntry = vgtEntries[GetIndex(treeView2.SelectedNode)];
                 Bitmap Diffuse = FileVGT.RenderImage(openFileDialog1.FileName, vgtEntry);
@@ -642,6 +649,10 @@ namespace olkviewer
                 {
                     try
                     {
+                        //Stream imageStreamSource = new FileStream(vgtImportDialog.FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+                        Bitmap b = new Bitmap(vgtImportDialog.FileName);
+
+                        Bitmap Result = b.Clone(new Rectangle(0, 0, b.Width, b.Height), PixelFormat.Format8bppIndexed);
 
                         var quantizer = new WuQuantizer();
                         using (var bitmap = new Bitmap(vgtImportDialog.FileName))
@@ -909,7 +920,8 @@ namespace olkviewer
 
             if (//eType != Vgt2.Entry.EType.UNK ||
                 eType == Vgt2.Entry.EType.C4 ||
-                eType == Vgt2.Entry.EType.C8)
+                eType == Vgt2.Entry.EType.C8 ||
+                eType == Vgt2.Entry.EType.RGBA8)
             {
                 string fn = GetIndex(treeView2.SelectedNode) + "-" + vgtEntry.Diffuse.texImage0.texture_format + ".png";
                 vgtExportDialog.FileName = fn;
